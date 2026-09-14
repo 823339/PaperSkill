@@ -2,6 +2,11 @@
 
 基于论文 *EmbodiedGen V2: An Agentic, Simulation-Ready 3D World Engine for Embodied AI*，由 **paper-skill** 生成的完整 React + TypeScript + Vite 网页项目。
 
+## Contributor
+
+- 中文展示名：刘轩麟
+- English display name: Xuanlin
+
 ## 本地运行
 
 ```bash
