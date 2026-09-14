@@ -238,8 +238,6 @@ const specs: Record<string, Spec> = {
   },
 };
 
-specs['11.1'] = specs['10.2'];
-
 const fallback = specs['1.1'];
 
 const actions = [
@@ -269,6 +267,19 @@ const trainingStages = [
   '世界模型训练：学习 transition、reward、policy 与 value。',
   '价值优化：用 n-step TD 形成 advantage。',
   '策略更新：PPO 用优势信号微调 LLM。',
+];
+
+const analogyScenes = [
+  { title: '背景：三路信号闭环', focus: '闭环', labels: ['LLM', 'WM', 'Env'], colors: [ORANGE, BLUE, GREEN] },
+  { title: '语言先验：先分析再打分', focus: '打分', labels: ['C_t', 'CoT', 'π'], colors: [BLUE, ORANGE, GREEN] },
+  { title: '根节点注入：只听一次', focus: 'Root', labels: ['Root', 'LLM', 'WM'], colors: [GREEN, ORANGE, BLUE] },
+  { title: '权重平衡：可调融合', focus: 'α', labels: ['α', 'π_WM', 'π_LLM'], colors: [PURPLE, BLUE, ORANGE] },
+  { title: '表示边界：文本与 latent', focus: '边界', labels: ['H_t', 'C_t', 'z_t'], colors: [BLUE, ORANGE, GREEN] },
+  { title: 'MCTS：选择扩展回传', focus: '搜索', labels: ['Sel', 'Exp', 'Back'], colors: [GREEN, BLUE, RED] },
+  { title: '世界模型：想象与价值', focus: '价值', labels: ['z', 'r', 'v'], colors: [BLUE, ORANGE, GREEN] },
+  { title: '训练推理：双环闭环', focus: 'RLFT', labels: ['WM', 'A', 'LLM'], colors: [BLUE, PURPLE, ORANGE] },
+  { title: '实验：消融证据', focus: '证据', labels: ['Full', 'Abl', 'Risk'], colors: [GREEN, ORANGE, RED] },
+  { title: '总结：术语归位', focus: '术语', labels: ['π', 'v', 'A'], colors: [ORANGE, BLUE, GREEN] },
 ];
 
 function fused(alpha: number) {
@@ -403,19 +414,22 @@ function drawHero(ctx: CanvasRenderingContext2D, good: boolean, time: number, w:
 
 function drawAnalogy(ctx: CanvasRenderingContext2D, chapter: number, s: State, time: number, w: number, h: number, reduceMotion: boolean) {
   clear(ctx, w, h);
+  const scene = analogyScenes[Math.max(0, Math.min(analogyScenes.length - 1, chapter - 1))];
   const p = phase(time, s, reduceMotion);
   const cx = w / 2;
   const cy = h / 2 + 4;
-  const radius = 42;
-  const labels = chapter === 7 ? ['z', 'r', 'v'] : chapter === 8 ? ['WM', 'A', 'LLM'] : ['LLM', 'WM', 'Env'];
-  const colors = [ORANGE, BLUE, GREEN];
-  const pts = labels.map((_, i) => [cx + Math.cos(-Math.PI / 2 + i * 2.1) * radius, cy + Math.sin(-Math.PI / 2 + i * 2.1) * radius] as Point);
+  const radius = 36 + (chapter % 3) * 5;
+  const turn = (chapter - 1) * 0.17;
+  const active = (s.step + chapter - 1) % scene.labels.length;
+  const pts = scene.labels.map((_, i) => [cx + Math.cos(-Math.PI / 2 + turn + i * 2.1) * radius, cy + Math.sin(-Math.PI / 2 + turn + i * 2.1) * radius] as Point);
   pts.forEach((pt, i) => {
-    arrow(ctx, pt, pts[(i + 1) % pts.length], colors[i], 2.5);
-    dotNode(ctx, pt[0], pt[1], labels[i], colors[i], i === s.step % 3, 20);
+    arrow(ctx, pt, pts[(i + 1) % pts.length], scene.colors[i], i === active ? 3.4 : 2.3);
+    dotNode(ctx, pt[0], pt[1], scene.labels[i], scene.colors[i], i === active, 20);
   });
-  movingDot(ctx, pts[s.step % 3], pts[(s.step + 1) % 3], p, colors[s.step % 3]);
+  movingDot(ctx, pts[active], pts[(active + 1) % pts.length], p, scene.colors[active]);
+  card(ctx, cx - 56, cy - 18, 112, 36, scene.focus, scene.colors[active], false);
   txt(ctx, `第 ${chapter} 章机制缩略图`, 20, 28, INK, 15, 800);
+  txt(ctx, scene.title, 20, 50, scene.colors[active], 13, 800);
 }
 
 function drawResearch(ctx: CanvasRenderingContext2D, s: State, time: number, w: number, h: number, reduceMotion: boolean) {
@@ -701,7 +715,7 @@ function drawModule(ctx: CanvasRenderingContext2D, key: string, s: State, time: 
   else if (key === '8.3') drawTrainingTimeline(ctx, s, w, h);
   else if (key === '9.1') drawAblation(ctx, s, time, w, h, reduceMotion);
   else if (key === '10.1') drawExperiment(ctx, s, time, w, h, reduceMotion);
-  else if (key === '10.2' || key === '11.1') drawGlossary(ctx, s, w, h);
+  else if (key === '10.2') drawGlossary(ctx, s, w, h);
   else drawResearch(ctx, s, time, w, h, reduceMotion);
 }
 

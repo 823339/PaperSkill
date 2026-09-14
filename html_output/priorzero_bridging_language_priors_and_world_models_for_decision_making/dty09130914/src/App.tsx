@@ -7,14 +7,11 @@ import { Module } from './components/Module';
 import { Formula } from './components/Formula';
 import { InsightBar } from './components/InsightBar';
 import { Takeaway } from './components/Takeaway';
-import { BiliVideos } from './components/BiliVideos';
 
 export default function App() {
   const chapters = tutorial.chapters;
   const total = chapters.length;
-  const bili = tutorial.bilibili || [];
-  const hasBili = bili.length > 0;
-  const lastSlide = total + (hasBili ? 1 : 0);
+  const lastSlide = total;
 
   const [active, setActive] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -52,12 +49,11 @@ export default function App() {
   const sidebarItems = [
     { idx: 0, num: '封面', title: tutorial.meta.titleZh || tutorial.meta.titleEn },
     ...chapters.map((ch, i) => ({ idx: i + 1, num: `§${i + 1}`, title: ch.title })),
-    ...(hasBili ? [{ idx: total + 1, num: '??', title: '延伸视频' }] : []),
   ];
 
   const currentChapter = active >= 1 && active <= total ? chapters[active - 1] : null;
   const progress = lastSlide === 0 ? 100 : Math.round((active / lastSlide) * 100);
-  const progressLabel = active === 0 ? '封面' : currentChapter ? `第 ${active} 章` : '延伸视频';
+  const progressLabel = active === 0 ? '封面' : `第 ${active} 章`;
 
   return (
     <div className={`slide-layout ${sidebarOpen ? 'sidebar-open' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -121,8 +117,6 @@ export default function App() {
               {currentChapter.formula ? <Formula formula={currentChapter.formula} /> : null}
               <Takeaway items={currentChapter.takeaways} />
             </section>
-          ) : hasBili ? (
-            <BiliVideos items={bili} />
           ) : null}
         </div>
 

@@ -1,16 +1,27 @@
 import { readFileSync } from 'node:fs';
 
 const text = readFileSync('src/data/tutorial.ts', 'utf8');
+const app = readFileSync('src/App.tsx', 'utf8');
 const canvas = readFileSync('src/modules/priorzero-canvas.tsx', 'utf8');
+const thumbs = readFileSync('src/components/MechanismThumb.tsx', 'utf8');
 const css = readFileSync('src/styles/paper.css', 'utf8');
+const types = readFileSync('src/types.ts', 'utf8');
 
 const errors = [];
 const count = (re) => (text.match(re) || []).length;
 const chapters = count(/kind:\s*'chapter'/g);
 const modules = count(/kind:\s*'module'/g);
 
-if (chapters < 10) errors.push(`expected at least 10 chapters, found ${chapters}`);
-if (modules < 15) errors.push(`expected at least 15 modules after animation redesign, found ${modules}`);
+if (chapters !== 10) errors.push(`expected exactly 10 chapters, found ${chapters}`);
+if (modules !== 15) errors.push(`expected exactly 15 modules after chapter merge, found ${modules}`);
+
+const videoSurface = [text, app, canvas, types].join('\n');
+for (const forbidden of [/bilibili/i, /BiliVideos/, /BV[0-9A-Za-z]+/, /延伸视频/, /推荐视频/]) {
+  if (forbidden.test(videoSurface)) errors.push(`video/Bilibili residue found: ${forbidden}`);
+}
+if (text.includes("id: '11.1'") || canvas.includes("'11.1'") || thumbs.includes("'chap-11'")) errors.push('obsolete chapter 11 residue found');
+if ((canvas.match(/focus:\s*'/g) || []).length !== 10) errors.push('expected 10 distinct mechanism thumbnail scenes');
+if ((thumbs.match(/'chap-\d+':/g) || []).length !== 10) errors.push('expected 10 mechanism thumbnail mappings');
 
 const requiredTerms = [
   '研究背景',

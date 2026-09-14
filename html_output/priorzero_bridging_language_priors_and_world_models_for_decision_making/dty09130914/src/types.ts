@@ -82,21 +82,8 @@ export interface ChapterDef {
   takeaways: Takeaway[];
 }
 
-export interface BiliDef {
-  bvid: string; // "BV..." or "" if unused
-  title: string;
-  reason: string;
-  /** Optional static cover URL (https). Baked in at generation time so the cover
-   *  shows without depending on the runtime Bilibili metadata fetch. */
-  cover?: string;
-  /** Optional static view count string (e.g. "41.5万播放"), baked in at generation
-   *  time so 播放量 shows without depending on the runtime metadata fetch. */
-  views?: string;
-}
-
 export interface TutorialData {
   meta: Meta;
   hero: HeroConfig;
   chapters: ChapterDef[];
-  bilibili?: BiliDef[];
 }

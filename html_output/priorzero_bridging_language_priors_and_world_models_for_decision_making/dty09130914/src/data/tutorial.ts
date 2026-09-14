@@ -427,41 +427,5 @@ export const tutorial: TutorialData = {
         { icon: '?', title: '范围边界', desc: '论文限制在 Jericho 和 BabyAI 的离散动作设置，真实具身场景仍是未来工作。' },
       ],
     },
-    {
-      kind: 'chapter',
-      id: 'chap-11',
-      title: '术语与总结：把机制压缩成一张图',
-      badge: 'both',
-      badgeLabel: '总结',
-      bridge: '最后用术语关系网络复盘 PriorZero：语言先验在根节点起步，世界模型在深层想象，MCTS 把价值变成动作。',
-      analogy: {
-        title: '翻开机制索引卡',
-        text: '每张卡片只解释一个关键符号；翻转后看到它在决策闭环中的位置，避免把语言概率和环境价值混为一谈。',
-        componentId: 'priorzero-canvas',
-      },
-      modules: [
-        {
-          kind: 'module',
-          id: '11.1',
-          title: '术语关系网络',
-          desc: '按步骤复盘 π_LLM、P_root、z_t、v_θ 与 A。关系图中的数值为示意值，论文报告结果仍以实验章节和对应协议为准。',
-          componentId: 'priorzero-canvas',
-        },
-      ],
-      insight: '读懂 PriorZero 的关键，是同时记住位置边界、信息来源和证据协议。',
-      takeaways: [
-        { icon: '◆', title: '位置', desc: 'LLM 先验只在根节点注入。' },
-        { icon: '◆', title: '分工', desc: '世界模型负责 imagined rollout 与价值估计。' },
-        { icon: '◆', title: '边界', desc: '实验结论只覆盖论文报告的离散动作设置。' },
-      ],
-    },
-  ],
-  bilibili: [
-    {
-      bvid: 'BV1DdL36tEXW',
-      title: '从零构建AlphaGo——Eric Jang',
-      reason: '低播放量但主题贴近 MCTS 与信用分配，可作为理解 PriorZero 为什么借助搜索改进动作目标的补充材料。',
-      views: '340播放',
-    },
   ],
 };

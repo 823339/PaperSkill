@@ -32,7 +32,15 @@ function PriorThumb() {
 }
 
 function RootThumb() {
-  return <ThumbFrame title="根节点注入"><path d="M280 42 V82 M280 82 L150 120 M280 82 L280 120 M280 82 L410 120" fill="none" stroke={labels.line} strokeWidth="4"/><circle cx="280" cy="35" r="21" fill={labels.green}/><text x="280" y="39" textAnchor="middle" fill="#fff">根</text>{[[150,'左 0.24'],[280,'前 0.48'],[410,'右 0.28']].map(([x,t], i) => <g key={i}><circle cx={Number(x)} cy="122" r="16" fill={i === 1 ? labels.orange : labels.blue}/><text x={Number(x)} y="126" textAnchor="middle" fill="#fff">a{i + 1}</text><rect x={Number(x) - 34} y="82" width="68" height="5" rx="2" fill={i === 1 ? labels.orange : labels.blue}/><text x={Number(x)} y="76" textAnchor="middle">{t}</text></g>)}<path className="thumb-signal" d="M95 35 H245" stroke={labels.orange} strokeWidth="5" markerEnd="url(#thumb-arrow-loop)"/><text x="85" y="30" textAnchor="middle" fill={labels.orange}>πLLM</text></ThumbFrame>;
+  return <ThumbFrame title="根节点注入"><defs><marker id="thumb-arrow-root" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill={labels.orange}/></marker></defs><path d="M280 42 V82 M280 82 L150 120 M280 82 L280 120 M280 82 L410 120" fill="none" stroke={labels.line} strokeWidth="4"/><circle cx="280" cy="35" r="21" fill={labels.green}/><text x="280" y="39" textAnchor="middle" fill="#fff">根</text>{[[150,'左 0.24'],[280,'前 0.48'],[410,'右 0.28']].map(([x,t], i) => <g key={i}><circle cx={Number(x)} cy="122" r="16" fill={i === 1 ? labels.orange : labels.blue}/><text x={Number(x)} y="126" textAnchor="middle" fill="#fff">a{i + 1}</text><rect x={Number(x) - 34} y="82" width="68" height="5" rx="2" fill={i === 1 ? labels.orange : labels.blue}/><text x={Number(x)} y="76" textAnchor="middle">{t}</text></g>)}<path className="thumb-signal" d="M95 35 H245" stroke={labels.orange} strokeWidth="5" markerEnd="url(#thumb-arrow-root)"/><text x="85" y="30" textAnchor="middle" fill={labels.orange}>πLLM</text></ThumbFrame>;
+}
+
+function AlphaThumb() {
+  return <ThumbFrame title="α 权重融合"><defs><marker id="thumb-arrow-alpha" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill={labels.green}/></marker></defs><rect x="70" y="48" width="128" height="48" rx="10" fill={labels.soft} stroke={labels.blue} strokeWidth="2"/><text x="134" y="77" textAnchor="middle" fill={labels.blue}>π_WM</text><rect x="362" y="48" width="128" height="48" rx="10" fill="#fff2e9" stroke={labels.orange} strokeWidth="2"/><text x="426" y="77" textAnchor="middle" fill={labels.orange}>π_LLM</text><line x1="208" y1="72" x2="352" y2="72" stroke={labels.line} strokeWidth="8" strokeLinecap="round"/><circle className="thumb-particle" cx="280" cy="72" r="14" fill={labels.green}/><text x="280" y="77" textAnchor="middle" fill="#fff">α</text><path d="M280 96 V122 H426" fill="none" stroke={labels.green} strokeWidth="3" markerEnd="url(#thumb-arrow-alpha)"/><text x="275" y="138" textAnchor="middle" fill={labels.green}>只改变根节点混合比例</text></ThumbFrame>;
+}
+
+function RepresentationThumb() {
+  return <ThumbFrame title="表示边界"><defs><marker id="thumb-arrow-repr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill={labels.blue}/></marker></defs><rect x="44" y="52" width="110" height="48" rx="9" fill={labels.soft} stroke={labels.blue} strokeWidth="2"/><text x="99" y="81" textAnchor="middle">H_t 历史</text><path d="M154 76 H224" stroke={labels.blue} strokeWidth="3" markerEnd="url(#thumb-arrow-repr)"/><rect x="235" y="24" width="116" height="42" rx="9" fill="#fff2e9" stroke={labels.orange} strokeWidth="2"/><text x="293" y="50" textAnchor="middle" fill={labels.orange}>C_t 文本</text><rect x="235" y="88" width="116" height="42" rx="9" fill="#eff7f0" stroke={labels.green} strokeWidth="2"/><text x="293" y="114" textAnchor="middle" fill={labels.green}>z_t latent</text><path d="M351 45 C400 45 420 60 448 72" stroke={labels.orange} strokeWidth="3" fill="none"/><path d="M351 109 C400 109 420 92 448 78" stroke={labels.green} strokeWidth="3" fill="none"/><circle cx="470" cy="76" r="27" fill="#fff" stroke={labels.line} strokeWidth="3"/><text x="470" y="80" textAnchor="middle">根</text><line x1="388" y1="22" x2="388" y2="130" stroke={labels.red} strokeWidth="2" strokeDasharray="6 6"/><text x="397" y="26" fill={labels.red}>边界</text></ThumbFrame>;
 }
 
 function MctsThumb() {
@@ -80,14 +88,13 @@ export function MechanismThumb({ chapterId }: ThumbProps) {
     'chap-1': ResearchThumb,
     'chap-2': PriorThumb,
     'chap-3': RootThumb,
-    'chap-4': MctsThumb,
-    'chap-5': WorldThumb,
-    'chap-6': ValueThumb,
-    'chap-7': LoopThumb,
-    'chap-8': TrainThumb,
-    'chap-9': InferenceThumb,
-    'chap-10': ExperimentThumb,
-    'chap-11': TermsThumb,
+    'chap-4': AlphaThumb,
+    'chap-5': RepresentationThumb,
+    'chap-6': MctsThumb,
+    'chap-7': WorldThumb,
+    'chap-8': LoopThumb,
+    'chap-9': ExperimentThumb,
+    'chap-10': TermsThumb,
   };
   const Thumb = map[chapterId] || ResearchThumb;
   return <Thumb />;
