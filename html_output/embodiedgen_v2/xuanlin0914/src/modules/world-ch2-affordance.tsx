@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const MEDIA = '/media/embodiedgen';
+const MEDIA = 'media/embodiedgen';
 const ModelViewer = 'model-viewer' as React.ElementType;
 
 const layers = [
