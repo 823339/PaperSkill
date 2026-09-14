@@ -2,8 +2,8 @@ import type { TutorialData } from '../types';
 
 export const tutorial: TutorialData = {
   meta: {
-    titleEn: 'EmbodiedGen V2: From Intent to Executable 3D Worlds',
-    titleZh: 'EmbodiedGen V2：从生成内容到可执行世界',
+    titleEn: 'EmbodiedGen V2: An Agentic, Simulation-Ready 3D World Engine for Embodied AI',
+    titleZh: 'EmbodiedGen V2：面向具身 AI 的 Agentic、Simulation-Ready 3D World Engine',
     venue: 'Horizon Robotics · 2026',
     authors: 'EmbodiedGen Team',
     affiliation: 'Horizon Robotics',

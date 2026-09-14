@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const MEDIA = '/media/embodiedgen';
-const FIG = '/images/embodiedgen';
+const MEDIA = 'media/embodiedgen';
+const FIG = 'images/embodiedgen';
 const ModelViewer = 'model-viewer' as React.ElementType;
 
 function Hud({ source, title }: { source: string; title: string }) {
