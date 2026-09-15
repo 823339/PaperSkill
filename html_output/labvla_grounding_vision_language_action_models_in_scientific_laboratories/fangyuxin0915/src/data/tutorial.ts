@@ -181,9 +181,9 @@ export const tutorial: TutorialData = {
       "id": "chap-4"
     },
     {
-      "title": "讨论：四层实验室能力定位",
+      "title": "讨论：四层能力定位与研究局限",
       "badge": "both",
-      "badgeLabel": "能力定位",
+      "badgeLabel": "定位与边界",
       "bridge": "“能按步骤完成实验”和“能自己判断怎样做实验”不是同一种能力。论文用四种实验室角色说明这条边界，把 LabVLA 放在能够执行固定多步流程的“技术员”层级。",
       "modules": [
         {
@@ -192,37 +192,10 @@ export const tutorial: TutorialData = {
           "title": "从学徒到科学家：能力要求逐层增加",
           "desc": "选择一个角色，查看其典型操作。专家需要精密仪器与测量记录，科学家还要根据测量改变流程；这两层展示的是能力要求。",
           "componentId": "positioning"
-        }
-      ],
-      "takeaways": [
-        {
-          "icon": "①",
-          "title": "固定流程",
-          "desc": "LabVLA 当前定位于技术员：执行已有的多步实验流程。"
         },
-        {
-          "icon": "②",
-          "title": "精密操作",
-          "desc": "专家还需要熟练使用精密仪器、记录测量并遵守安全约束。"
-        },
-        {
-          "icon": "③",
-          "title": "科学判断",
-          "desc": "科学家能够根据观测调整流程，或判断科学目标是否达成。"
-        }
-      ],
-      "kind": "chapter",
-      "id": "chap-5"
-    },
-    {
-      "title": "研究局限：从受控流程到真实实验室",
-      "badge": "both",
-      "badgeLabel": "研究边界",
-      "bridge": "完成受控场景中的固定流程，距离在真实实验室可靠工作仍有差距。这里分别查看验证范围、自主调整能力和与人的协作，以及每一项尚未覆盖的情况。",
-      "modules": [
         {
           "kind": "module",
-          "id": "6.1",
+          "id": "5.2",
           "title": "Limitations：距离真实实验室仍有三类缺口",
           "desc": "切换论文提出的三类局限，观察受控验证、固定流程和协作能力各自留下的边界。",
           "componentId": "limitations"
@@ -247,7 +220,7 @@ export const tutorial: TutorialData = {
         }
       ],
       "kind": "chapter",
-      "id": "chap-6"
+      "id": "chap-5"
     }
   ]
 };
