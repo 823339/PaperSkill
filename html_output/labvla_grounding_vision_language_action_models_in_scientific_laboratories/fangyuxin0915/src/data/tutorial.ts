@@ -181,7 +181,7 @@ export const tutorial: TutorialData = {
       "id": "chap-4"
     },
     {
-      "title": "讨论：四层能力定位与研究局限",
+      "title": "讨论：四层能力定位",
       "badge": "both",
       "badgeLabel": "定位与边界",
       "bridge": "“能按步骤完成实验”和“能自己判断怎样做实验”不是同一种能力。论文用四种实验室角色说明这条边界，把 LabVLA 放在能够执行固定多步流程的“技术员”层级。",
@@ -192,10 +192,21 @@ export const tutorial: TutorialData = {
           "title": "从学徒到科学家：能力要求逐层增加",
           "desc": "选择一个角色，查看其典型操作。专家需要精密仪器与测量记录，科学家还要根据测量改变流程；这两层展示的是能力要求。",
           "componentId": "positioning"
-        },
+        }
+      ],
+      "takeaways": [],
+      "kind": "chapter",
+      "id": "chap-5"
+    },
+    {
+      "title": "研究局限",
+      "badge": "both",
+      "badgeLabel": "定位与边界",
+      "bridge": "",
+      "modules": [
         {
           "kind": "module",
-          "id": "5.2",
+          "id": "6.1",
           "title": "Limitations：距离真实实验室仍有三类缺口",
           "desc": "切换论文提出的三类局限，观察受控验证、固定流程和协作能力各自留下的边界。",
           "componentId": "limitations"
@@ -220,7 +231,7 @@ export const tutorial: TutorialData = {
         }
       ],
       "kind": "chapter",
-      "id": "chap-5"
+      "id": "chap-6"
     }
   ]
 };

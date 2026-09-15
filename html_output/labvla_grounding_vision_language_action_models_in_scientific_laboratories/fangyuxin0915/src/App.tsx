@@ -110,12 +110,12 @@ export default function App() {
                   {currentChapter.badgeLabel}
                 </span>
               </h2>
-              <ChapterBridge text={currentChapter.bridge} />
+              {currentChapter.bridge ? <ChapterBridge text={currentChapter.bridge} /> : null}
               {currentChapter.modules.map((m) => (
                 <Module key={m.id} module={m} chapterId={currentChapter.id} />
               ))}
               {currentChapter.insight ? <InsightBar text={currentChapter.insight} /> : null}
-              <Takeaway items={currentChapter.takeaways} />
+              {currentChapter.takeaways.length ? <Takeaway items={currentChapter.takeaways} /> : null}
             </section>
           ) : hasBili ? (
             <BiliVideos items={bili} />
