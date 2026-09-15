@@ -1,23 +1,136 @@
 import type { TutorialData } from '../types';
 
-const tri=(a:string,b:string,c:string)=>[
-  {icon:'🎯',title:'先看问题',desc:a},{icon:'🔧',title:'再看机制',desc:b},{icon:'✨',title:'记住边界',desc:c},
+const tri = (a: string, b: string, c: string) => [
+  { icon: '🎯', title: '先看问题', desc: a },
+  { icon: '🔧', title: '再看机制', desc: b },
+  { icon: '✨', title: '记住边界', desc: c },
 ];
 
-export const tutorial:TutorialData={
- meta:{titleEn:'Learning Transferable Visual Models From Natural Language Supervision',titleZh:'CLIP：用语言教会模型看图',venue:'ICML 2021',authors:'Alec Radford、Jong Wook Kim 等',affiliation:'OpenAI',domain:'多模态 · 对比学习 · 零样本迁移',coreProblem:'固定类别的视觉分类器，怎样回答训练标签之外的新问题？',coreInsight:'先从 4 亿图文对学习共同表示，再用候选描述构造零样本分类器。',keywords:['4亿图文对','双编码器','余弦相似度','零样本分类']},
- hero:{oldMethod:{desc:'固定标签：面对新的分类问题，需要重新定义并训练分类头。',componentId:'clip-hero-old'},newMethod:{desc:'图文预训练后：用候选描述构造零样本分类器，比较照片与描述的相似度。',componentId:'clip-hero-new'}},
- chapters:[
- {kind:'chapter',id:'chap-1',title:'分类器能换一套问题吗',badge:'inf',badgeLabel:'推理基础',bridge:'同一张“猫在跳跃”的照片，既可以问动物，也可以问动作。固定标签分类器只会回答预先定义的问题；论文第 2 页图 1 展示了用文本候选改写任务的接口。',analogy:{title:'拨开照片，换个问题',text:'照片内容不变，拨开它后露出另一组说明槽。候选文本改变了问题，却没有改变这张照片。',componentId:'clip-analogy-1'},modules:[{kind:'module',id:'1.1',title:'同一张照片，两套候选描述',desc:'选择要问的问题。固定分数只解释候选集机制，是教学示例，不运行图片推理。',componentId:'clip-1-main'}],insight:'零样本分类的灵活性来自可替换的候选文本；能回答什么，仍受候选集与预训练表示限制。',formula:{lead:'预测只在给定候选描述中寻找最高相似度。',unicode:'ŷ = argmaxⱼ sim(I, Tⱼ)',symbols:[{sym:'I',desc:'当前图像。'},{sym:'Tⱼ',desc:'第 j 条候选描述。'},{sym:'ŷ',desc:'候选集内最高分索引。'}]},takeaways:tri('候选文本可以改变同一张图的分类问题。','零样本指不为目标任务用标签拟合分类头。','模型只能在当前候选集内选择，不保证开放集拒识。')},
- {kind:'chapter',id:'chap-2',title:'把照片与文字放进同一个空间',badge:'inf',badgeLabel:'推理基础',bridge:'候选问题可以更换，但照片和文字需要一把共同的比较尺。论文第 3 页图 3 先将两侧投影并逐行归一化。',analogy:{title:'转向对应的说明',text:'转动一张照片，让它朝向固定说明卡。方向越接近，视觉上越对齐；模型并不会真的旋转输入照片。',componentId:'clip-analogy-2'},modules:[{kind:'module',id:'2.1',title:'拖动方向，读出余弦',desc:'图像方向固定，拖动文字向量端点。二维圆只解释几何关系，不代表 CLIP 的实际嵌入维度。',componentId:'clip-2-main'}],insight:'归一化消除了长度的影响；这里比较的是方向，不是向量有多长。',formula:{lead:'两侧投影到共同维度并归一化后，点积就是余弦相似度。',unicode:'u = f(I)Wᵢ / ‖f(I)Wᵢ‖₂；v = g(T)Wₜ / ‖g(T)Wₜ‖₂；sim = u·v = cosθ',symbols:[{sym:'u, v',desc:'图像和文本的单位向量。'},{sym:'Wᵢ, Wₜ',desc:'两侧线性投影矩阵。'},{sym:'θ',desc:'二维教学示意中的夹角。'}]},takeaways:tri('编码器原始维度可以不同。','线性投影和归一化建立共同的比较接口。','余弦既不是准确率，也不是概率。')},
- {kind:'chapter',id:'chap-3',title:'辨认配对，比逐字描述更直接',badge:'inf',badgeLabel:'训练直觉',bridge:'有了共同分数，训练还需知道哪些图文原本成对。论文第 3 页第 2.2 节把 N 对样本展开为 N×N 次比较。',analogy:{title:'把说明滑到原照片旁',text:'一张说明卡滑向与它原本成对的静止照片；动作只表示配对关系，不表示文本生成。',componentId:'clip-analogy-3'},modules:[{kind:'module',id:'3.1',title:'三对图文，九次比较',desc:'逐行查看原始配对和批内错配。余弦矩阵是教学示例，不是 CLIP 实测输出。',componentId:'clip-3-main'}],insight:'一条图文配对提供一个正例，也可与批内其他描述构成相对选择。',formula:{lead:'第 i 张图会与第 j 段文字计算一次相似度。',unicode:'Cᵢⱼ = uᵢ·vⱼ；N² = N + N(N−1)',symbols:[{sym:'Cᵢⱼ',desc:'第 i 张图与第 j 段文字的余弦。'},{sym:'N',desc:'批内原始图文对数。'}]},takeaways:tri('对角线身份由原始数据配对决定。','批内每张图都会与每条描述比较。','批内错配可能语义相近，不能视为绝对错误。')},
- {kind:'chapter',id:'chap-4',title:'相似度怎样变成训练信号',badge:'both',badgeLabel:'推理与训练',bridge:'配对位置已知后，需要把相似度变成可优化的数值。论文第 3 页图 3 使用可学习的正尺度；这里用等价温度 τ 展示 softmax 锐度。',analogy:{title:'收紧夹子，让重点更突出',text:'照片夹逐渐收紧在最高分说明旁，表示概率更集中；说明卡的顺序没有交换。',componentId:'clip-analogy-4'},modules:[{kind:'module',id:'4.1',title:'温度改变锐度，不改变排序',desc:'固定余弦 0.8、0.4、0.1，第一项是正确配对。滑块只演示单行 softmax 与交叉熵。',componentId:'clip-4-main'}],insight:'温度调整固定分数的 softmax 锐度；真正学习还要更新图文表示。',formula:{lead:'温度为正，因此只改变概率集中程度。',unicode:'sⱼ = cⱼ/τ；pⱼ = exp(sⱼ)/Σₖexp(sₖ)；ℓ = −log p正确；τ = exp(−t) > 0',symbols:[{sym:'τ',desc:'正温度，等价于论文的 exp(t) 尺度。'},{sym:'pⱼ',desc:'当前候选集下的 softmax 值。'},{sym:'ℓ',desc:'该行交叉熵，越低越好。'}]},takeaways:tri('正尺度不会改写固定分数的排序。','softmax 取决于温度和候选集合。','CLIP 完整目标还会平均另一个方向。')},
- {kind:'chapter',id:'chap-5',title:'描述，是分类器的接口',badge:'both',badgeLabel:'推理与训练',bridge:'相似度总是在一组文字之间比较。本章依据第 4 页第 2.5 节检查：提示如何表达任务，候选集又允许哪些答案。',analogy:{title:'把说明卡展开一点',text:'折起的卡只露出类名，展开后补足照片语境；展开不会把相册里不存在的说明变出来。',componentId:'clip-analogy-5'},modules:[{kind:'module',id:'5.1',title:'换一种描述，答案范围也会变',desc:'切换裸类名、照片模板和缺失类别。分数为教学设定，改写提示不保证真实任务提升。',componentId:'clip-5-main'}],insight:'提示决定如何提问，候选集决定允许回答什么。先检查答案范围，再评价措辞。',formula:{lead:'零样本预测仍然是在当前候选集合中取最大值。',unicode:'ŷ = argmaxⱼ u·vⱼ',symbols:[{sym:'u',desc:'归一化图像向量。'},{sym:'vⱼ',desc:'第 j 条候选描述的单位向量。'}]},takeaways:tri('类名和提示把任务变成文本候选。','提示改写可能改变结果，但没有普遍提升保证。','正确类别缺失时，最高分仍只是集合内最佳匹配。')},
- {kind:'chapter',id:'chap-6',title:'不再训练，也能提出新问题',badge:'inf',badgeLabel:'推理流程',bridge:'文本候选确定后，可以缓存它们的表示，再对新照片执行同一条比较路径。论文第 2 页图 1 和第 4 页第 2.5 节给出这套零样本用法。',analogy:{title:'盖好这一页的索引',text:'索引章落到已整理好的照片旁，按已有规则登记结果；盖章不是重新训练相册。',componentId:'clip-analogy-6'},modules:[{kind:'module',id:'6.1',title:'走完一次零样本推理',desc:'使用给定二维单位向量，逐步查看候选缓存、图像表示、余弦和答案。所有向量均为教学示例。',componentId:'clip-6-main'}],insight:'换候选描述就能换问题；答案始终是当前候选集内相似度最高的描述。',formula:{lead:'归一化点积给出每个候选的相似度。',unicode:'cⱼ = u·vⱼ；ŷ = argmaxⱼ cⱼ',symbols:[{sym:'cⱼ',desc:'图像与第 j 条候选文本的余弦。'},{sym:'ŷ',desc:'最高分候选索引。'}]},takeaways:tri('候选文本向量可作为分类器的类别表示。','同一推理路径可处理不同候选集。','零样本仍依赖此前的大规模图文预训练。')},
- {kind:'chapter',id:'chap-7',title:'两个方向，一起学会对齐',badge:'trn',badgeLabel:'训练细节',bridge:'零样本推理使用已学好的表示；训练时，同一张 N×N 分数表要同时回答“图找文”和“文找图”。',analogy:{title:'把歪斜的照片校正',text:'照片转正后同时贴合横向与纵向定位边，类似同一矩阵要兼顾两个读取方向。',componentId:'clip-analogy-7'},modules:[{kind:'module',id:'7.1',title:'同一矩阵，读两个方向',desc:'固定有效余弦矩阵与 τ=1，逐步计算两个方向的交叉熵；模块不进行真实训练。',componentId:'clip-7-main'}],insight:'行概率与列概率来自不同竞争集合，一个方向配得好不代表另一个方向同样好。',formula:{lead:'CLIP 对两个方向的配对分类损失取平均。',unicode:'p行(i,j)=exp(sᵢⱼ)/Σₖexp(sᵢₖ)；p列(i,j)=exp(sᵢⱼ)/Σₖexp(sₖⱼ)；L=−(1/2N)Σᵢ[log p行(i,i)+log p列(i,i)]',symbols:[{sym:'sᵢⱼ',desc:'缩放后的图文相似度。'},{sym:'L',desc:'双向平均交叉熵，越低越好。'}]},takeaways:tri('行方向从图像找文字，列方向从文字找图像。','两个方向使用同一分数矩阵。','示例只计算目标值，没有模拟优化。')},
- {kind:'chapter',id:'chap-8',title:'两座编码器，一把共同的尺',badge:'trn',badgeLabel:'结构细节',bridge:'双向损失读取的分数来自两条编码路径。论文第 3 页图 3 说明两侧可以保留不同结构和原始维度。',analogy:{title:'检查同一把尺',text:'放大镜移到相册细节处，提醒我们先看清表示，再比较照片与说明。',componentId:'clip-analogy-8'},modules:[{kind:'module',id:'8.1',title:'两条路径在哪里会合',desc:'点击画布或按钮选择结构位置，查看形状和作用。形状来自论文图 3，布局为教学示意。',componentId:'clip-8-main'},{kind:'module',id:'8.2',title:'图像分支有两种家族',desc:'切换论文描述的改进 ResNet 与 ViT；这是结构比较，不是速度或准确率测量。',componentId:'clip-8-variant'}],insight:'结构细节可以不同，共同维度和归一化才是两侧可比较的接口。',formula:{lead:'两侧各自投影、归一化，再进行成对比较。',unicode:'uᵢ=(IᵢWᵢ)/‖IᵢWᵢ‖₂；vⱼ=(TⱼWₜ)/‖TⱼWₜ‖₂；sᵢⱼ=exp(t)uᵢ·vⱼ',symbols:[{sym:'dᵢ,dₜ',desc:'两座编码器的原始特征宽度。'},{sym:'dₑ',desc:'共同嵌入维度。'},{sym:'t',desc:'可学习的对数尺度。'}]},takeaways:tri('两座编码器无需结构或原始维度相同。','线性投影和逐行归一化建立共同接口。','ResNet 与 ViT 是备选图像家族，并非串联。')},
- {kind:'chapter',id:'chap-9',title:'迁移的边界，藏在任务变化里',badge:'trn',badgeLabel:'结果边界',bridge:'共同空间让比较成为可能，却不会自动消除任务差异。论文第 5 页图 4 同时报告了明显优势和薄弱任务。',analogy:{title:'遮住一角再检查',text:'说明卡遮住照片一角，提醒我们：可见线索或任务改变后，原来的判断需要重新核验。',componentId:'clip-analogy-9'},modules:[{kind:'module',id:'9.1',title:'先区分变化，再读真实差距',desc:'上方照片与素描为教学示意；任务差值来自论文图 4，基线是监督 ResNet50 特征线性分类器。',componentId:'clip-9-main'}],insight:'能处理某些外观变化，不等于能完成所有新任务；负结果同样定义能力边界。',formula:{lead:'每个任务的差值必须在自己的评估协议内解释。',unicode:'Δ任务 = score任务(CLIP zero-shot) − score任务(ResNet50 linear probe)',symbols:[{sym:'Δ任务',desc:'该任务报告分数的百分点差。'}]},takeaways:tri('16/27 获胜不是全任务通用保证。','汽车、食物的正结果要与卫星、距离、计数的负结果一起读。','外观变化、跨任务迁移和开放集能力是不同证据。')},
- {kind:'chapter',id:'chap-10',title:'读结果，也读条件',badge:'both',badgeLabel:'结果与局限',bridge:'最后用第 8 页图 7 练习完整读表：先核对基线、模型、数据集和指标，再解释柱形差距。',analogy:{title:'分数落在同一刻度',text:'评分指针落到相册的同一把刻度尺上，让比较先有共同起点。',componentId:'clip-analogy-10'},modules:[{kind:'module',id:'10.1',title:'同起点，六组结果',desc:'Figure 7 右侧准确率（%），遵循原图类别子集与映射；零样本 CLIP 对比 ResNet101。',componentId:'clip-10-main'}],insight:'先核对比较条件，再看差距；自然分布偏移优势不等于任意扰动鲁棒。',formula:{lead:'准确率越高越好，差值用百分点表达。',unicode:'accuracy = 正确预测数 / 评估样本数 × 100%；Δ = accuracyCLIP − accuracyResNet101',symbols:[{sym:'accuracy',desc:'相应数据集协议下的准确率。'},{sym:'Δ',desc:'准确率百分点差，不是相对百分比。'}]},takeaways:tri('Figure 7 的基线是 ResNet101，ImageNet 起点同为 76.2%。','六组数值在共同零点和原图协议内比较。','论文证据不支持任意扰动保证或跨协议混合平均。')}
- ],
- bilibili:[{bvid:'BV1SL4y1s7LQ',title:'CLIP 论文逐段精读【论文精读】',reason:'逐段讲解本论文，适合配合原文复习方法与实验。',cover:'https://i1.hdslb.com/bfs/archive/b741a268f24deacb2eba536bf5f990817e82a01f.jpg',views:'38.2万播放'}]
+export const tutorial: TutorialData = {
+  meta: {
+    titleEn: 'Learning Transferable Visual Models From Natural Language Supervision',
+    titleZh: 'CLIP：用语言教会模型看图',
+    venue: 'ICML 2021',
+    authors: 'Alec Radford、Jong Wook Kim 等',
+    affiliation: 'OpenAI',
+    domain: '多模态 · 对比学习 · 零样本迁移',
+    coreProblem: '固定类别的视觉分类器，怎样回答训练标签之外的新问题？',
+    coreInsight: '用大规模自然语言监督学习图文共同表示，再以候选描述构造零样本分类器。',
+    keywords: ['WIT 4亿图文对', '双编码器', '对比学习', 'Prompt集成'],
+  },
+  hero: {
+    oldMethod: {
+      desc: '固定标签：面对新的分类问题，需要重新定义并训练分类头。',
+      componentId: 'clip-hero-old',
+    },
+    newMethod: {
+      desc: '图文预训练后：用自然语言候选定义任务，比较照片与描述的相似度。',
+      componentId: 'clip-hero-new',
+    },
+  },
+  chapters: [
+    {
+      kind: 'chapter', id: 'chap-1', slug: 'why-clip', title: '为什么需要 CLIP', badge: 'both', badgeLabel: '问题与接口',
+      bridge: '论文从视觉任务依赖固定标签和专用训练的问题出发：自然语言可以表达更广泛的视觉概念，也能在推理时重新规定要回答的问题。',
+      analogy: { title: '拨开照片，换个问题', text: '照片内容不变，拨开它后露出另一组说明槽。候选文本改变了问题，却没有改变这张照片。', componentId: 'clip-analogy-1' },
+      modules: [{ kind: 'module', id: '1.1', title: '同一张照片，两套候选描述', desc: '选择要问的问题。固定分数只解释候选集机制，是教学示例，不运行图片推理。', componentId: 'clip-1-main' }],
+      insight: '自然语言同时承担监督来源和任务接口；能回答什么，仍受候选集、prompt 与预训练表示限制。',
+      formula: { lead: '预测只在给定候选描述中寻找最高相似度。', unicode: 'ŷ = argmaxⱼ sim(I, Tⱼ)', symbols: [{ sym: 'I', desc: '当前图像。' }, { sym: 'Tⱼ', desc: '第 j 条候选描述。' }, { sym: 'ŷ', desc: '候选集内最高分索引。' }] },
+      takeaways: tri('固定标签分类器很难直接回答训练时未定义的新问题。', '自然语言让同一图像表示可以连接不同候选任务。', '模型只能在当前候选集内选择，不保证开放集拒识。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-2', slug: 'data', title: '自然语言监督怎样扩展到 4 亿图文对', badge: 'trn', badgeLabel: '数据构建',
+      bridge: '论文 §2.1 先解决规模问题：已有高质量图文数据较小，海量网络图片又常缺少可用文本，因此作者构建了 WebImageText（WIT）。',
+      analogy: { title: '把数据量推到更大刻度', text: '指针从较小数据集移向海量图文对，表示监督规模扩大；刻度只对应论文报告的数量，不代表数据质量自动提高。', componentId: 'clip-analogy-10' },
+      modules: [{ kind: 'module', id: '2.1', title: '从 10 万到 4 亿：WIT 如何构建', desc: '切换 MS-COCO、Visual Genome、YFCC100M 与 WIT，查看论文 §2.1 报告的规模、文本条件和筛选边界。', componentId: 'clip-data-main' }],
+      insight: 'CLIP 的成功依赖规模、自然语言监督和高效训练目标共同作用，不能把贡献压缩成单一的 contrastive learning。',
+      formula: { lead: 'WIT 的三个核心构建数字来自论文 §2.1。', unicode: '|WIT| = 400M 图文对；|Q| ≈ 500,000；每个 query 最多约 20,000 对', symbols: [{ sym: 'WIT', desc: 'WebImageText，作者构建的网络图文数据集。' }, { sym: 'Q', desc: '用于覆盖广泛视觉概念的查询集合。' }] },
+      takeaways: tri('高质量众包图文数据按现代预训练标准规模有限。', 'WIT 用约 50 万查询收集 4 亿图文对，并对每个查询设置上限。', '不同数据集的“照片”和“图文对”口径不能直接当作质量排名。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-3', slug: 'dual-encoder', title: '两座编码器先各自读懂图像与文字', badge: 'trn', badgeLabel: '模型结构',
+      bridge: '有了大规模图文对，论文图 3 使用独立的图像编码器和文本编码器处理两种输入，再把两侧表示送入共同接口。',
+      analogy: { title: '检查两条独立阅读路径', text: '放大镜依次检查图像页和文字页，提醒我们先分开读取两种输入，再看它们在哪里会合。', componentId: 'clip-analogy-8' },
+      modules: [
+        { kind: 'module', id: '3.1', title: '两条路径在哪里会合', desc: '点击结构位置，查看编码、投影、归一化和成对比较的形状与作用；布局为论文图 3 的教学展开。', componentId: 'clip-8-main' },
+        { kind: 'module', id: '3.2', title: '图像分支有两种家族', desc: '切换论文描述的改进 ResNet 与 ViT；这是结构比较，不是速度或准确率测量。', componentId: 'clip-8-variant' },
+      ],
+      insight: '两座编码器无需结构或原始特征宽度相同；投影后的共同维度才是跨模态比较接口。',
+      formula: { lead: '两侧先独立编码，再各自投影到 dₑ 维。', unicode: 'Iᵢ → f(Iᵢ)Wᵢ ∈ ℝᵈᵉ；Tⱼ → g(Tⱼ)Wₜ ∈ ℝᵈᵉ', symbols: [{ sym: 'f, g', desc: '图像编码器与文本编码器。' }, { sym: 'Wᵢ, Wₜ', desc: '两侧独立的线性投影。' }, { sym: 'dₑ', desc: '共同嵌入维度。' }] },
+      takeaways: tri('图像和文字先由不同编码器处理。', '论文实验了改进 ResNet 和 ViT 两类图像编码器。', '两类图像编码器是备选方案，并非串联。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-4', slug: 'shared-embedding', title: '把图像与文字放进共同表示空间', badge: 'both', badgeLabel: '表示接口',
+      bridge: '两条编码路径输出后，论文图 3 对两侧做线性投影与逐行归一化，使图像和文字能够用同一把余弦尺度比较。',
+      analogy: { title: '转向对应的说明', text: '转动一张照片，让它朝向固定说明卡。方向越接近，视觉上越对齐；模型并不会真的旋转输入照片。', componentId: 'clip-analogy-2' },
+      modules: [{ kind: 'module', id: '4.1', title: '拖动方向，读出余弦', desc: '图像方向固定，拖动文字向量端点。二维圆只解释几何关系，不代表 CLIP 的实际嵌入维度。', componentId: 'clip-2-main' }],
+      insight: '归一化消除了长度的影响；这里比较的是方向，不是向量有多长。',
+      formula: { lead: '两侧投影并归一化后，点积等于余弦相似度。', unicode: 'u = f(I)Wᵢ / ‖f(I)Wᵢ‖₂；v = g(T)Wₜ / ‖g(T)Wₜ‖₂；sim = u·v = cosθ', symbols: [{ sym: 'u, v', desc: '图像和文本的单位向量。' }, { sym: 'θ', desc: '二维教学示意中的夹角。' }] },
+      takeaways: tri('编码器原始维度可以不同。', '线性投影和归一化建立共同的比较接口。', '余弦相似度既不是准确率，也不是概率。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-5', slug: 'contrastive-learning', title: 'N 对样本形成 N×N 次对比', badge: 'trn', badgeLabel: '训练目标',
+      bridge: '共同空间给出了比较方法，论文 §2.2 和图 3 再把一批 N 对图文展开为 N×N 个候选配对，学习辨认哪些配对真实出现。',
+      analogy: { title: '把说明滑回原照片旁', text: '一张说明卡滑向与它原本成对的静止照片；动作只表示配对关系，不表示文本生成。', componentId: 'clip-analogy-3' },
+      modules: [{ kind: 'module', id: '5.1', title: '三对图文，九次比较', desc: '逐行查看原始配对和批内错配。余弦矩阵是教学示例，不是 CLIP 实测输出。', componentId: 'clip-3-main' }],
+      insight: '一条图文配对提供一个正例，也可与批内其他描述构成相对选择；批内错配不一定语义完全无关。',
+      formula: { lead: '第 i 张图会与第 j 段文字计算一次相似度。', unicode: 'Cᵢⱼ = uᵢ·vⱼ；N² = N + N(N−1)', symbols: [{ sym: 'Cᵢⱼ', desc: '第 i 张图与第 j 段文字的余弦。' }, { sym: 'N', desc: '批内原始图文对数。' }] },
+      takeaways: tri('对角线身份由原始数据配对决定。', '批内每张图都会与每条描述比较。', '高效对比目标与大规模自然语言数据缺一不可。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-6', slug: 'loss-temperature', title: '双向损失与温度一起塑造训练信号', badge: 'trn', badgeLabel: '训练细节',
+      bridge: '同一张相似度矩阵要同时回答“图找文”和“文找图”；论文图 3 还学习一个正尺度，控制 softmax 的集中程度。',
+      analogy: { title: '收紧夹子，让两边都对齐', text: '照片夹逐渐收紧在正确说明旁，表示分布更集中；真正的训练还要同时校正横向与纵向读取。', componentId: 'clip-analogy-4' },
+      modules: [
+        { kind: 'module', id: '6.1', title: '同一矩阵，读两个方向', desc: '固定有效余弦矩阵与 τ=1，逐步计算两个方向的交叉熵；模块不进行真实训练。', componentId: 'clip-7-main' },
+        { kind: 'module', id: '6.2', title: '温度改变锐度，不改变排序', desc: '固定教学余弦 0.8、0.4、0.1，滑块只演示单行 softmax 与交叉熵。', componentId: 'clip-4-main' },
+      ],
+      insight: '行概率与列概率来自不同竞争集合；温度改变固定分数的集中程度，模型学习还要更新两侧表示。',
+      formula: { lead: 'CLIP 对两个方向的配对分类损失取平均。', unicode: 'sᵢⱼ = exp(t)uᵢ·vⱼ；L = −(1/2N)Σᵢ[log p行(i,i) + log p列(i,i)]', symbols: [{ sym: 't', desc: '论文中可学习的对数尺度，exp(t) 为正。' }, { sym: 'L', desc: '图找文与文找图的平均交叉熵。' }] },
+      takeaways: tri('两个方向使用同一张 N×N 分数矩阵。', '正尺度或等价温度影响 softmax 锐度。', '页面数值只演示计算，没有模拟参数优化。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-7', slug: 'prompt-ensemble', title: 'Prompt 与模板集成怎样定义类别', badge: 'inf', badgeLabel: '推理设计',
+      bridge: '训练完成后，论文 §2.5 用类别名称构造候选文本，并实验了任务 prompt 与多个模板的集成；提示怎样写会改变分类器接口。',
+      analogy: { title: '把同一张说明卡展开成多种说法', text: '卡片从裸类名展开为带语境的描述，再把多种说法汇成同一类别表示；候选集中没有的答案仍不会自动出现。', componentId: 'clip-analogy-5' },
+      modules: [
+        { kind: 'module', id: '7.1', title: '提示写法与候选范围', desc: '切换裸类名、照片模板和缺失类别。分数为教学设定，改写提示不保证真实任务提升。', componentId: 'clip-5-main' },
+        { kind: 'module', id: '7.2', title: '多个模板组合为一个类别表示', desc: '增加同一类别的模板数量，观察编码后的表示怎样组合；二维 embedding 和数值均为教学示例。', componentId: 'clip-prompt-ensemble' },
+      ],
+      insight: 'prompt 规定如何表达类别，candidate set 规定允许回答什么，prompt ensembling 则汇总同一类别的多种文本视角。',
+      formula: { lead: '本模块用归一化后的均值示范一种模板组合方式。', unicode: 'v_c = normalize((1/K)Σₖ normalize(g(promptₖ(c))))', symbols: [{ sym: 'c', desc: '当前类别名称。' }, { sym: 'K', desc: '参与组合的模板数量。' }, { sym: 'v_c', desc: '教学示意中的组合类别表示。' }] },
+      takeaways: tri('类名和 prompt 把下游任务转化为文本候选。', '论文实验了多个 prompt templates 的集成。', '具体教学模板和二维数值不是论文实测结果。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-8', slug: 'zero-shot', title: '不用目标任务训练，走完零样本推理', badge: 'inf', badgeLabel: '推理流程',
+      bridge: '类别文本表示确定后，可以缓存候选向量；新图片只需经过图像编码、共同空间比较和候选内取最大值。',
+      analogy: { title: '按已有索引给新照片盖章', text: '索引章落到新照片旁，表示按预训练得到的共同尺度登记结果；盖章不是用目标任务标签重新训练。', componentId: 'clip-analogy-6' },
+      modules: [{ kind: 'module', id: '8.1', title: '走完一次零样本推理', desc: '使用给定二维单位向量，逐步查看候选缓存、图像表示、余弦和答案。所有向量均为教学示例。', componentId: 'clip-6-main' }],
+      insight: '换候选描述就能换问题；答案始终是当前候选集内相似度最高的描述。',
+      formula: { lead: '归一化点积给出每个候选的相似度。', unicode: 'cⱼ = u·vⱼ；ŷ = argmaxⱼ cⱼ', symbols: [{ sym: 'cⱼ', desc: '图像与第 j 条候选文本的余弦。' }, { sym: 'ŷ', desc: '最高分候选索引。' }] },
+      takeaways: tri('候选文本向量可作为分类器的类别表示。', '推理时不使用目标任务标签拟合新分类头。', '零样本能力仍依赖此前的大规模图文预训练。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-9', slug: 'transfer', title: '迁移结果必须同时看强项与弱项', badge: 'both', badgeLabel: '迁移结果',
+      bridge: '论文图 4 将零样本 CLIP 与监督 ResNet50 特征上的线性分类器比较：27 个数据集里胜出 16 个，但不同任务的差距方向很不一致。',
+      analogy: { title: '把不同任务放回各自刻度', text: '校正照片位置后再读任务差值，提醒我们在各自协议内解释结果，不能把所有变化合并成一个万能结论。', componentId: 'clip-analogy-7' },
+      modules: [{ kind: 'module', id: '9.1', title: '正结果与负结果放在同一张图上', desc: '照片与素描为教学示意；任务差值来自论文图 4，基线是监督 ResNet50 特征线性分类器。', componentId: 'clip-9-main' }],
+      insight: 'StanfordCars、Food101 等强项必须与 EuroSAT、KITTI Distance、CLEVRCounts 等弱项一起解释。',
+      formula: { lead: '每个任务的差值必须在自己的评估协议内解释。', unicode: 'Δ任务 = score任务(CLIP zero-shot) − score任务(ResNet50 linear probe)', symbols: [{ sym: 'Δ任务', desc: '该任务报告分数的百分点差。' }] },
+      takeaways: tri('论文图 4 中零样本 CLIP 在 27 个数据集的 16 个上胜出。', '汽车和食物分类的强项不抵消卫星、距离和计数任务的弱项。', '16/27 不代表所有任务通用。'),
+    },
+    {
+      kind: 'chapter', id: 'chap-10', slug: 'robustness', title: '鲁棒性结果之后，还要读限制与社会影响', badge: 'both', badgeLabel: '证据边界',
+      bridge: '论文图 7 报告自然分布偏移结果，第 4–6 节则继续讨论数据重叠、评测选择、计算扩展、偏差、隐私和监控风险。',
+      analogy: { title: '遮住一角，再检查结论边界', text: '说明卡遮住照片一角，提醒我们：亮眼结果只是证据的一部分，能力边界、评测条件和社会影响也必须一起阅读。', componentId: 'clip-analogy-9' },
+      modules: [
+        { kind: 'module', id: '10.1', title: '同起点，六组自然分布偏移结果', desc: 'Figure 7 右侧准确率（%），遵循原图类别子集与映射；零样本 CLIP 对比同 ImageNet 起点的 ResNet101。', componentId: 'clip-10-main' },
+        { kind: 'module', id: '10.2', title: '逐项核对论文自己的 Limitations 与 Broader Impacts', desc: '切换六类边界，查看论文第 4–6 节的原始讨论；不把作者估算和风险讨论扩写成未经验证的结论。', componentId: 'clip-limitations' },
+      ],
+      insight: '自然分布偏移优势、任务迁移能力、数据无污染和社会可接受性是不同命题，需要分别提供证据。',
+      formula: { lead: 'Figure 7 的准确率差值以百分点表达。', unicode: 'accuracy = 正确预测数 / 评估样本数 × 100%；Δ = accuracyCLIP − accuracyResNet101', symbols: [{ sym: 'accuracy', desc: '相应数据集及类别映射协议下的准确率。' }, { sym: 'Δ', desc: '准确率百分点差，不是相对百分比。' }] },
+      takeaways: tri('Figure 7 的自然分布偏移结果不等于任意扰动鲁棒保证。', '未检测到数据重叠影响不能证明完全不存在 contamination。', '复杂任务、评测选择、约 1000× 计算估算、偏差和隐私风险共同限定结论。'),
+    },
+  ],
+  bilibili: [{ bvid: 'BV1SL4y1s7LQ', title: 'CLIP 论文逐段精读【论文精读】', reason: '逐段讲解本论文，适合配合原文复习方法与实验。', cover: 'https://i1.hdslb.com/bfs/archive/b741a268f24deacb2eba536bf5f990817e82a01f.jpg', views: '38.2万播放' }],
 };
