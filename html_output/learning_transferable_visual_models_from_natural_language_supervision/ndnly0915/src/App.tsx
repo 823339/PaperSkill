@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { tutorial } from './data/tutorial';
 import { Hero } from './components/Hero';
 import { ChapterBridge } from './components/ChapterBridge';
@@ -16,16 +16,31 @@ export default function App() {
   const hasBili = bili.length > 0;
   const lastSlide = total + (hasBili ? 1 : 0); // 0=hero, 1..total=chapters, total+1=bili
 
-  const [active, setActive] = useState(0);
+  const slideHashes = useMemo(
+    () => ['overview', ...chapters.map((chapter) => chapter.slug), ...(hasBili ? ['videos'] : [])],
+    [chapters, hasBili]
+  );
+  const activeFromHash = useCallback(() => {
+    const hash = decodeURIComponent(window.location.hash.slice(1));
+    const index = slideHashes.indexOf(hash);
+    return index >= 0 ? index : 0;
+  }, [slideHashes]);
+
+  const [active, setActive] = useState(() => activeFromHash());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const goTo = useCallback(
     (i: number) => {
-      setActive(Math.max(0, Math.min(i, lastSlide)));
+      const target = Math.max(0, Math.min(i, lastSlide));
+      setActive(target);
       setSidebarOpen(false);
+      const nextHash = `#${slideHashes[target]}`;
+      if (window.location.hash !== nextHash) {
+        window.history.pushState(null, '', nextHash);
+      }
     },
-    [lastSlide]
+    [lastSlide, slideHashes]
   );
 
   const next = useCallback(() => goTo(active + 1), [active, goTo]);
@@ -37,11 +52,34 @@ export default function App() {
   }, [active]);
 
   useEffect(() => {
+    const syncFromHistory = () => {
+      setActive(activeFromHash());
+      setSidebarOpen(false);
+    };
+    const canonicalHash = `#${slideHashes[activeFromHash()]}`;
+    if (window.location.hash !== canonicalHash) {
+      window.history.replaceState(null, '', canonicalHash);
+    }
+    window.addEventListener('popstate', syncFromHistory);
+    window.addEventListener('hashchange', syncFromHistory);
+    return () => {
+      window.removeEventListener('popstate', syncFromHistory);
+      window.removeEventListener('hashchange', syncFromHistory);
+    };
+  }, [activeFromHash, slideHashes]);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const target = e.target;
+      if (
+        target instanceof Element &&
+        target.closest('input, textarea, select, button, a, [contenteditable="true"], canvas[tabindex]')
+      ) return;
+      if (e.key === 'ArrowRight') {
         e.preventDefault();
         next();
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         prev();
       }
@@ -82,6 +120,7 @@ export default function App() {
               key={item.idx}
               className={`slide-sidebar-item ${active === item.idx ? 'active' : ''}`}
               onClick={() => goTo(item.idx)}
+              aria-current={active === item.idx ? 'page' : undefined}
             >
               <span className="slide-sidebar-num">{item.num}</span>
               <span className="slide-sidebar-text">{item.title}</span>

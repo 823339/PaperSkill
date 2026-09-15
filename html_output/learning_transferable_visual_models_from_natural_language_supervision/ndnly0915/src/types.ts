@@ -71,6 +71,7 @@ export interface Takeaway {
 export interface ChapterDef {
   kind: 'chapter';
   id: string; // e.g. "chap-1"
+  slug: string; // stable URL hash, e.g. "contrastive-learning"
   title: string;
   badge: Badge;
   badgeLabel: string;
